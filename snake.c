@@ -1,46 +1,67 @@
+### 📄 snake.c (Complete Code)
+```c
 #include <stdio.h>
+#include <stdlib.h>
 #include <conio.h>
 #include <windows.h>
-#include <stdlib.h>
+#include <time.h>
 
-int width = 20, height = 20;
-int x, y, fruitX, fruitY, score;
-int tailX[100], tailY[100];
-int nTail;
+// Game dimensions
+int width = 20;
+int height = 15;
 
-enum eDirection { STOP = 0, LEFT, RIGHT, UP, DOWN };
-enum eDirection dir;
+// Game variables
+int x, y;               // Snake head position
+int foodX, foodY;       // Food position
+int score;              // Player score
+int tailX[100];         // Tail X positions
+int tailY[100];         // Tail Y positions
+int tailLength = 0;     // Current tail length
+int gameOver = 0;       // Game state flag
+char dir = 'R';         // Current direction (R, L, U, D)
 
-int gameOver;
-
+// Function to initialize game state
 void setup() {
     gameOver = 0;
-    dir = STOP;
     x = width / 2;
     y = height / 2;
-
-    fruitX = rand() % width;
-    fruitY = rand() % height;
     score = 0;
+    tailLength = 0;
+    dir = 'R';
+    
+    // Seed random number generator
+    srand(time(NULL));
+    
+    // Generate first food position
+    foodX = rand() % width;
+    foodY = rand() % height;
 }
 
+// Function to draw the game board
 void draw() {
-    system("cls");
-
-    for (int i = 0; i < width + 2; i++) printf("#");
+    system("cls");  // Clear console
+    
+    // Draw top border
+    for (int i = 0; i < width + 2; i++) {
+        printf("#");
+    }
     printf("\n");
-
+    
+    // Draw game area
     for (int i = 0; i < height; i++) {
         for (int j = 0; j < width; j++) {
-            if (j == 0) printf("#");
-
-            if (i == y && j == x)
-                printf("O");
-            else if (i == fruitY && j == fruitX)
-                printf("F");
+            if (j == 0) printf("#");  // Left border
+            
+            if (i == y && j == x) {
+                printf("O");  // Snake head
+            }
+            else if (i == foodY && j == foodX) {
+                printf("*");  // Food
+            }
             else {
                 int print = 0;
-                for (int k = 0; k < nTail; k++) {
+                // Draw tail segments
+                for (int k = 0; k < tailLength; k++) {
                     if (tailX[k] == j && tailY[k] == i) {
                         printf("o");
                         print = 1;
@@ -48,37 +69,62 @@ void draw() {
                 }
                 if (!print) printf(" ");
             }
-
-            if (j == width - 1) printf("#");
+            
+            if (j == width - 1) printf("#");  // Right border
         }
         printf("\n");
     }
-
-    for (int i = 0; i < width + 2; i++) printf("#");
-    printf("\nScore: %d\n", score);
+    
+    // Draw bottom border
+    for (int i = 0; i < width + 2; i++) {
+        printf("#");
+    }
+    printf("\n");
+    
+    // Display score and controls
+    printf("Score: %d\n", score);
+    printf("Controls: W A S D | X to Exit\n");
 }
 
+// Function to handle keyboard input
 void input() {
     if (_kbhit()) {
-        switch (_getch()) {
-            case 'a': dir = LEFT; break;
-            case 'd': dir = RIGHT; break;
-            case 'w': dir = UP; break;
-            case 's': dir = DOWN; break;
-            case 'x': gameOver = 1; break;
+        char ch = _getch();
+        switch (ch) {
+            case 'a':
+            case 'A':
+                if (dir != 'R') dir = 'L';
+                break;
+            case 'd':
+            case 'D':
+                if (dir != 'L') dir = 'R';
+                break;
+            case 'w':
+            case 'W':
+                if (dir != 'D') dir = 'U';
+                break;
+            case 's':
+            case 'S':
+                if (dir != 'U') dir = 'D';
+                break;
+            case 'x':
+            case 'X':
+                gameOver = 1;
+                break;
         }
     }
 }
 
+// Function to update game logic
 void logic() {
+    // Move tail: shift all segments
     int prevX = tailX[0];
     int prevY = tailY[0];
     int prev2X, prev2Y;
-
     tailX[0] = x;
     tailY[0] = y;
-
-    for (int i = 1; i < nTail; i++) {
+    
+    for (int i = 1; i < tailLength; i++) {
         prev2X = tailX[i];
         prev2Y = tailY[i];
         tailX[i] = prevX;
@@ -86,37 +132,86 @@ void logic() {
         prevX = prev2X;
         prevY = prev2Y;
     }
-
+    
+    // Move snake head based on direction
     switch (dir) {
-        case LEFT: x--; break;
-        case RIGHT: x++; break;
-        case UP: y--; break;
-        case DOWN: y++; break;
+        case 'L':
+            x--;
+            break;
+        case 'R':
+            x++;
+            break;
+        case 'U':
+            y--;
+            break;
+        case 'D':
+            y++;
+            break;
     }
-
-    if (x >= width) x = 0; else if (x < 0) x = width - 1;
-    if (y >= height) y = 0; else if (y < 0) y = height - 1;
-
-    for (int i = 0; i < nTail; i++) {
-        if (tailX[i] == x && tailY[i] == y)
+    
+    // Wall collision detection
+    if (x < 0 || x >= width || y < 0 || y >= height) {
+        gameOver = 1;
+    }
+    
+    // Self collision detection
+    for (int i = 0; i < tailLength; i++) {
+        if (tailX[i] == x && tailY[i] == y) {
             gameOver = 1;
+        }
     }
-
-    if (x == fruitX && y == fruitY) {
+    
+    // Food collision detection
+    if (x == foodX && y == foodY) {
         score += 10;
-        fruitX = rand() % width;
-        fruitY = rand() % height;
-        nTail++;
+        tailLength++;
+        // Generate new food at random position
+        foodX = rand() % width;
+        foodY = rand() % height;
+        
+        // Ensure food doesn't spawn on snake
+        int onSnake = 1;
+        while (onSnake) {
+            onSnake = 0;
+            for (int i = 0; i < tailLength; i++) {
+                if (tailX[i] == foodX && tailY[i] == foodY) {
+                    onSnake = 1;
+                    foodX = rand() % width;
+                    foodY = rand() % height;
+                    break;
+                }
+            }
+        }
     }
 }
 
+// Main function
 int main() {
+    printf("=== SNAKE GAME ===\n");
+    printf("Press any key to start...\n");
+    getch();
+    
     setup();
+    
+    // Game loop
     while (!gameOver) {
         draw();
         input();
         logic();
-        Sleep(120);
+        Sleep(100);  // 100ms delay for smooth gameplay
     }
+    
+    // Game over screen
+    system("cls");
+    printf("\n");
+    printf("╔══════════════════════════════╗\n");
+    printf("║         GAME OVER!           ║\n");
+    printf("╠══════════════════════════════╣\n");
+    printf("║    Final Score: %-5d         ║\n", score);
+    printf("║    Tail Length: %-5d         ║\n", tailLength);
+    printf("╚══════════════════════════════╝\n");
+    printf("\nPress any key to exit...\n");
+    getch();
+    
     return 0;
 }
