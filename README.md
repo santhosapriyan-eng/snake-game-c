@@ -1,43 +1,42 @@
-# 🐍 Snake Game in C
+# 🐍 Classic Snake Game in C
 
-## 📌 Overview
-A console-based Snake Game developed using C programming.
+A fully functional console-based Snake game implemented in pure C programming language. This project demonstrates real-time game development fundamentals without external graphics libraries.
 
-## 🎯 Objective
-To implement a real-time interactive game using core programming concepts.
+## 🎮 Gameplay
 
-## 🛠️ Technologies Used
-- C Programming
 
-## ⚙️ Features
-- Snake movement using keyboard
-- Food generation
-- Score tracking
-- Collision detection
 
-## 🧩 How It Works
-- Game loop continuously runs
-- User controls snake using keys
-- Snake grows when it eats food
-- Game ends on collision
+Control a snake that grows longer each time it eats food. The game ends if the snake hits the wall or collides with its own body.
 
-## ▶️ How to Run
-1. Compile:
-   gcc snake.c -o snake
+## ✨ Features
 
-2. Run:
-   ./snake
+- ✅ Real-time non-blocking keyboard input using `_kbhit()` / `_getch()`
+- ✅ Array-based tail management system
+- ✅ Boundary and self-collision detection
+- ✅ Dynamic food generation at random positions
+- ✅ Score tracking (10 points per food)
+- ✅ Smooth gameplay with 120ms frame delay
+- ✅ Console-based ASCII graphics
 
-## 📚 Concepts Used
-- Arrays
-- Loops
-- Functions
-- Game Logic
+## 🎯 Controls
 
-## 🔮 Future Improvements
-- Add GUI version
-- Difficulty levels
-- High score system
+| Key | Action |
+|-----|--------|
+| `W` | Move Up |
+| `A` | Move Left |
+| `S` | Move Down |
+| `D` | Move Right |
+| `X` | Exit Game |
 
-## 👨‍💻 Author
-Santhosa Priyan
+## 🖥️ System Requirements
+
+- Windows Operating System (uses windows.h and conio.h)
+- GCC or any C compiler (Turbo C, Dev-C++, Code::Blocks)
+- Terminal/Command Prompt with console support
+
+## 🔧 Compilation & Execution
+
+### Using GCC (MinGW)
+```bash
+gcc snake.c -o snake.exe
+./snake.exe
